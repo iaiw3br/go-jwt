@@ -26,7 +26,7 @@ func (u *UserModel) ExistUser(name string) bool {
 	return exist
 }
 
-func (u *UserModel) Create(user models.SignUp) (string, error) {
+func (u *UserModel) Create(user models.UserAuth) (string, error) {
 	sqlQuery := `INSERT INTO public.user (name, password) values ($1, $2) returning id`
 	var id string
 
@@ -37,4 +37,16 @@ func (u *UserModel) Create(user models.SignUp) (string, error) {
 	}
 
 	return id, nil
+}
+
+func (u *UserModel) FindUserByName(name string) (models.UserAuth, error) {
+	sqlQuery := `SELECT name, password FROM public.user WHERE name = $1`
+	var user models.UserAuth
+	err := u.DB.QueryRow(sqlQuery, name).Scan(&user.Name, &user.Password)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }
