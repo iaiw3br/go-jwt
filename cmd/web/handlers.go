@@ -33,7 +33,7 @@ func (app *application) signup(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var user models.UserAuth
+	var user models.User
 	err := decoder.Decode(&user)
 
 	if err != nil {
@@ -58,12 +58,18 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "user is valid")
+	token, err := createToken(foundUser.Id)
+	if err != nil {
+		log.Fatal("Не удалось получить токен")
+		return
+	}
+
+	fmt.Fprintf(w, "user is valid, token: %s", token)
 }
 
-func getUserFromBody(r *http.Request) (models.UserAuth, error) {
+func getUserFromBody(r *http.Request) (models.User, error) {
 	decoder := json.NewDecoder(r.Body)
-	var user models.UserAuth
+	var user models.User
 	err := decoder.Decode(&user)
 
 	if err != nil {
